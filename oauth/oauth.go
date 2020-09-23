@@ -8,15 +8,13 @@ import (
 	"strings"
 	"time"
 
+	"github.com/KatherineEbel/bookstore-utils-go/rest/errors"
 	"github.com/mercadolibre/golang-restclient/rest"
-	_ "github.com/mercadolibre/golang-restclient/rest"
-
-	"github.com/KatherineEbel/oauth-go/oauth/errors"
 )
 
 var (
 	restClient = rest.RequestBuilder{
-		BaseURL: "http://localhost:8080",
+		BaseURL: "http://localhost:8081",
 		Timeout: 200 * time.Millisecond,
 	}
 )
@@ -78,6 +76,9 @@ func Authenticate(r *http.Request) *errors.RestError {
 	}
 	tok, err := getAccessToken(tokId)
 	if err != nil {
+		if err.Code == http.StatusNotFound {
+			return nil
+		}
 		return err
 	}
 	r.Header.Add(headerXClientId, fmt.Sprintf("%v", tok.ClientId))
